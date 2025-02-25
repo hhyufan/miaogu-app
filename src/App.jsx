@@ -1,31 +1,85 @@
 import { Routes, Route, BrowserRouter } from 'react-router-dom';
 import Demo from "@/components/Demo.jsx";
-import {useState} from "react";
+import { useState, useEffect } from "react";
 import AuthForm from "@/pages/AuthForm.jsx";
-import { Box, Center } from "@chakra-ui/react";
+import { Box, Center, useBreakpointValue } from "@chakra-ui/react";
+
+// 设备检测函数
+const isDesktopDevice = () => {
+    if (typeof window === 'undefined') return false; // SSR处理
+
+    const userAgent = navigator.userAgent.toLowerCase();
+    const isMobile = /mobile|android|iphone|ipad|ipod/i.test(userAgent);
+    const isDesktop = /(macintosh|macintel|macppc|mac68k|windows|win32|win64|linux)/i.test(userAgent);
+
+    // 当在桌面环境且不是移动设备模拟时返回true
+    return isDesktop && !isMobile;
+};
 
 function App() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+    // 调试模式判断（开发环境 + 桌面设备）
+    const isDebugMode = isDesktopDevice();
+
+    // 响应式配置
+    const containerStyles = useBreakpointValue({
+        base: { // 移动端实际运行样式
+            w: "100%",
+            h: "100vh",
+        },
+        md: isDebugMode ? { // 仅在PC调试时应用的样式
+            w: "375px",
+            h: "667px",
+            my: 8,
+            boxShadow: "xl",
+            borderRadius: "20px",
+        } : { // 非调试模式保持移动样式
+            w: "100%",
+            h: "100vh"
+        }
+    });
+
     const handleLogin = () => {
         setIsLoggedIn(true);
     };
 
+    // 调试模式热键监听
+    useEffect(() => {
+        if (!isDebugMode) return;
+
+        const handleKeyPress = (e) => {
+            if (e.ctrlKey && e.key === 'd') {
+                document.documentElement.classList.toggle('debug-outline');
+            }
+        };
+
+        window.addEventListener('keypress', handleKeyPress);
+        return () => window.removeEventListener('keypress', handleKeyPress);
+    }, [isDebugMode]);
+
     return (
-        <Center minH="100vh" p={0} bg="gray.100">
+        <Center
+            minH="100vh"
+            p={0}
+            bg={isDebugMode ? "gray.50" : "white"}
+            _before={isDebugMode ? {
+                content: '"Mobile Preview (Debug Mode)"',
+                position: "fixed",
+                top: 2,
+                left: "50%",
+                transform: "translateX(-50%)",
+                color: "gray.400",
+                fontSize: "sm",
+                zIndex: 9999
+            } : undefined}
+        >
             <Box
-                w="100%"
-                maxW={{ base: "100%", md: "400px" }}
-                minH="100vh"
-                height="1px" // 用于触发高度继承
-                bg="#fff"
+                {...containerStyles}
                 position="relative"
-                overflowY="auto"
-                css={{
-                    "@media (orientation: landscape)": {
-                        maxWidth: "100%",
-                        minHeight: "auto"
-                    }
-                }}
+                overflow="hidden"
+                bg="white"
+                transition="all 0.2s"
             >
                 <BrowserRouter>
                     <Routes>
