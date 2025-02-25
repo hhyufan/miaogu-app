@@ -72,32 +72,23 @@ const AuthFrom = ({onLogin}) => {
                         <StyledPasswordInput placeholder="••••••" />
                     </Field.Root>
                 </Box>
+                <Box mt="40px">
+                    <LinkTip>
+                        没有账号？去注册
+                    </LinkTip>
+                    <Button
+                        onClick={handleClick}
+                        mt="10px"
+                        size="sm" // 设置按钮大小
+                        rounded="lg"
+                        color="#fff"
+                        backgroundColor="#ffb600" // 设置背景颜色
+                        width="100%" // 按钮宽度填满父容器
+                    >
+                        登录
+                    </Button>
+                </Box>
             </Flex>
-
-            {/* 底部按钮 */}
-            <Box
-                position="absolute" // 设置为绝对定位
-                bottom="80px" // 距离底部80px
-                left="50%" // 水平居中
-                transform="translateX(-50%)" // 水平居中
-                width="72%" // 设置宽度为94%
-            >
-                <LinkTip >
-                    没有账号？去注册
-                </LinkTip>
-
-                <Button
-                    onClick={handleClick}
-                    mt="10px"
-                    size="sm" // 设置按钮大小
-                    rounded="lg"
-                    color="#fff"
-                    backgroundColor="#ffb600" // 设置背景颜色
-                    width="100%" // 按钮宽度填满父容器
-                >
-                    登录
-                </Button>
-            </Box>
         </Container>
     );
 }
