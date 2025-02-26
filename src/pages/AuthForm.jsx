@@ -7,6 +7,7 @@ import { useState } from 'react';
 import {setReduxUsername} from "@/store/store.js";
 import {useDispatch} from "react-redux";
 import {toast} from "@/plugins/toast.js";
+import {login} from "@/api/api.js";
 
 const Container = styled.div`
     background-color: #fff;
@@ -62,7 +63,6 @@ const AuthFrom = ({ onLogin }) => {
     const [password, setPassword] = useState(''); // State for password
     const handleClick = async () => {
         dispatch(setReduxUsername(username));
-
         const fields = {"用户名": username, "密码": password };
         if (isRegistering) fields['邮箱'] = email
 
@@ -78,17 +78,18 @@ const AuthFrom = ({ onLogin }) => {
             missingFields.length > 1 ? '和' : ''
         }${
             missingFields[missingFields.length - 1]
-        }不能为空！`;
-
-        if (message) {
-            await toast.warning(message, { debounce: 2500, duration: 2000, closable: true});
+        }`;
+        console.log(missingFields)
+        if (missingFields.length !== 0) {
+            await toast.warning(message + "不能为空！", { debounce: 2500, duration: 2000, closable: true});
             return;
         }
 
+        await login(username, password)
         await toast.success("登录成功！");
         onLogin();
     };
-    
+
     const toggleMode = () => {
         setIsRegistering(!isRegistering); // Toggle between login and registration
     };
