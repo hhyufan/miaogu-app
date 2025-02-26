@@ -4,11 +4,11 @@ import image2Src from '@/assets/02.jpg';
 import styled from 'styled-components';
 import {PasswordInput, PasswordStrengthMeter} from "@/components/ui/password-input.jsx";
 import { useState } from 'react';
-import {setReduxUsername} from "@/store/store.js";
+import store, {setReduxUsername, setUserInfo} from "@/store/store.js";
 import {useDispatch} from "react-redux";
 import {toast} from "@/plugins/toast.js";
-import {login} from "@/api/api.js";
-
+import {login, register} from "@/api/api.js";
+const formatBeijingTime = () => new Date(Date.now() + 288e5).toISOString().replace(/T|\.\d+/g, ' ');
 const Container = styled.div`
     background-color: #fff;
     user-select: none;
@@ -84,10 +84,40 @@ const AuthFrom = ({ onLogin }) => {
             await toast.warning(message + "不能为空！", { debounce: 2500, duration: 2000, closable: true});
             return;
         }
+        const handleUserAction = async (action, username, password, email) => {
+            try {
+                const response = await action(username, password, email);
+                if (response.code === 200) {
+                    if (response.data?.token) {
+                        if (response.data?.user) {
+                            const userInfo = { ...response.data.user, lastLogin: formatBeijingTime() };
+                            store.dispatch(setUserInfo(userInfo));
+                        }
+                        onLogin();
+                    } else {
+                        await toast.warning(response['msg']);
+                    }
+                } else {
+                    await toast.error(response['msg']);
+                }
+            } catch (error) {
+                if (error.status === 429 && error?.response?.data) {
+                    await toast.error(error.response.data.message, {closable: true, duration: 2000, debounce: 2500});
+                } else {
+                    await toast.error("操作时出错", {error});
+                }
+            }
+        };
 
-        await login(username, password)
-        await toast.success("登录成功！");
-        onLogin();
+        if (isRegistering) {
+            if (strengthLv < 2) {
+                await toast.warning("密码强度低！");
+                return;
+            }
+            await handleUserAction(register, username, password, email);
+        } else {
+            await handleUserAction(login, username, password);
+        }
     };
 
     const toggleMode = () => {
