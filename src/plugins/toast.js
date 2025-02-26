@@ -108,6 +108,7 @@ if (typeof document !== 'undefined') {
     }
 
     .toast-item {
+        font-size: 14px;
         padding: 12px 20px;
         border-radius: 6px;
         background: #fff;
