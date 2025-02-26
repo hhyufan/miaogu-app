@@ -6,6 +6,7 @@ import {PasswordInput, PasswordStrengthMeter} from "@/components/ui/password-inp
 import { useState } from 'react';
 import {setReduxUsername} from "@/store/store.js";
 import {useDispatch} from "react-redux";
+import {toast} from "@/plugins/toast.js";
 
 const Container = styled.div`
     background-color: #fff;
@@ -59,9 +60,10 @@ const AuthFrom = ({ onLogin }) => {
     const [username, setUsername] = useState(''); // 本地状态管理 username
     const [email, setEmail] = useState(''); // State for email
     const [password, setPassword] = useState(''); // State for password
-    const handleClick = () => {
-        dispatch(setReduxUsername(username))
-        onLogin(); // Call the login function
+    const handleClick = async () => {
+        dispatch(setReduxUsername(username)); // 更新 Redux 中的用户名
+        await toast.success("登录成功！");
+        onLogin(); // 在 Toast 显示后调用登录函数
     };
 
     const toggleMode = () => {
