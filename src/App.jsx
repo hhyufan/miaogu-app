@@ -16,7 +16,18 @@ const isDesktopDevice = () => {
     return isDesktop && !isMobile;
 };
 
+
 function App() {
+    const [windowHeight, setWindowHeight] = useState(window.innerHeight);
+
+    useEffect(() => {
+        const handleResize = () => {
+            setWindowHeight(window.innerHeight);
+        };
+
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
 
     // 调试模式判断（开发环境 + 桌面设备）
@@ -26,7 +37,7 @@ function App() {
     const containerStyles = useBreakpointValue({
         base: { // 移动端实际运行样式
             w: "100%",
-            h: "100vh",
+            h: windowHeight,
         },
         md: isDebugMode ? { // 仅在PC调试时应用的样式
             w: "375px",
@@ -36,7 +47,7 @@ function App() {
             borderRadius: "20px",
         } : { // 非调试模式保持移动样式
             w: "100%",
-            h: "100vh"
+            h: windowHeight
         }
     });
 
