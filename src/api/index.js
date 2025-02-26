@@ -10,7 +10,7 @@ async function fetchConfig(url) {
         return await response.json();
     } catch (error) {
         console.error('Failed to fetch config:', error);
-        throw error; // 重新抛出错误以便调用者处理
+        // throw error; // 重新抛出错误以便调用者处理
     }
 }
 
@@ -18,7 +18,8 @@ export async function getBaseUrl() {
     const state = store.getState();
 
     if (state.edgeConfig.baseURL) return state.edgeConfig.baseURL; // 缓存结果
-    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    console.log(window.location.hostname)
+    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname.includes('.ngrok-free.app');
     const url = isLocalhost ? LOCALHOST_URL : API_URL;
 
     const data = await fetchConfig(url);
@@ -37,7 +38,7 @@ export async function getPublicKey() {
     const url = isLocalhost ? LOCALHOST_API_URL : API_URL;
 
     const data = await fetchConfig(url);
-    const publicKey = isLocalhost ? data.find(item => item.key === 'VUE_APP_PUBLIC_KEY')?.value : data.publicKey;
+    const publicKey = isLocalhost ? data.find(item => item.key === 'VUE_APP_PUBLIC_KEY')?.value : data?.publicKey;
     console.log(publicKey)
     store.dispatch(setPublicKey(publicKey));
     return publicKey; // 返回更新后的 publicKey
