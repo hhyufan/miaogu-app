@@ -4,6 +4,8 @@ import image2Src from '@/assets/02.jpg';
 import styled from 'styled-components';
 import {PasswordInput, PasswordStrengthMeter} from "@/components/ui/password-input.jsx";
 import { useState } from 'react';
+import {setReduxUsername} from "@/store/store.js";
+import {useDispatch} from "react-redux";
 
 const Container = styled.div`
     background-color: #fff;
@@ -52,11 +54,13 @@ const LinkTip = styled(Text)`
 `
 
 const AuthFrom = ({ onLogin }) => {
+    const dispatch = useDispatch();
     const [isRegistering, setIsRegistering] = useState(false); // State to toggle between login and registration
-    const [username, setUsername] = useState(''); // State for username
+    const [username, setUsername] = useState(''); // 本地状态管理 username
     const [email, setEmail] = useState(''); // State for email
     const [password, setPassword] = useState(''); // State for password
     const handleClick = () => {
+        dispatch(setReduxUsername(username))
         onLogin(); // Call the login function
     };
 
@@ -97,7 +101,9 @@ const AuthFrom = ({ onLogin }) => {
                                 <StyledInput
                                     placeholder="用户名"
                                     value={username}
-                                    onChange={(e) => setUsername(e.target.value)}
+                                    onChange={(e) => {
+                                        setUsername(e.target.value);
+                                    }}
                                 />
                                 <FieldLabel> 邮箱 </FieldLabel>
                                 <StyledInput
