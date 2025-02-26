@@ -61,11 +61,34 @@ const AuthFrom = ({ onLogin }) => {
     const [email, setEmail] = useState(''); // State for email
     const [password, setPassword] = useState(''); // State for password
     const handleClick = async () => {
-        dispatch(setReduxUsername(username)); // 更新 Redux 中的用户名
-        await toast.success("登录成功！");
-        onLogin(); // 在 Toast 显示后调用登录函数
-    };
+        dispatch(setReduxUsername(username));
 
+        const fields = {"用户名": username, "密码": password };
+        if (isRegistering) fields['邮箱'] = email
+
+        const missingFields = Object.entries(fields)
+            .filter(([, value]) => !value)
+            .map(([key]) => key);
+
+        const message = `${
+            missingFields
+                .slice(0, -1)
+                .join('、')
+        }${
+            missingFields.length > 1 ? '和' : ''
+        }${
+            missingFields[missingFields.length - 1]
+        }不能为空！`;
+
+        if (message) {
+            await toast.warning(message, { debounce: 2500, duration: 2000, closable: true});
+            return;
+        }
+
+        await toast.success("登录成功！");
+        onLogin();
+    };
+    
     const toggleMode = () => {
         setIsRegistering(!isRegistering); // Toggle between login and registration
     };
