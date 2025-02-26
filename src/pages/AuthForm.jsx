@@ -2,11 +2,13 @@ import { AspectRatio, Box, Flex, Image, Field, Input, Text, Button } from "@chak
 import image1Src from '@/assets/01.jpg';
 import image2Src from '@/assets/02.jpg';
 import styled from 'styled-components';
-import { PasswordInput } from "@/components/ui/password-input.jsx";
+import {PasswordInput, PasswordStrengthMeter} from "@/components/ui/password-input.jsx";
+import { useState } from 'react';
 
 const Container = styled.div`
     background-color: #fff;
-    padding: 60px;
+    user-select: none;
+    padding: 0 40px 0 40px;
     position: relative; /* 设置容器为相对定位 */
     height: 100vh; /* 设置容器高度为视口高度 */
 `;
@@ -49,32 +51,89 @@ const LinkTip = styled(Text)`
     font-size: 12px;
 `
 
-const AuthFrom = ({onLogin}) => {
+const AuthFrom = ({ onLogin }) => {
+    const [isRegistering, setIsRegistering] = useState(false); // State to toggle between login and registration
+    const [username, setUsername] = useState(''); // State for username
+    const [email, setEmail] = useState(''); // State for email
+    const [password, setPassword] = useState(''); // State for password
     const handleClick = () => {
-        onLogin()
+        onLogin(); // Call the login function
     };
-    const authModel = 0;
-    const imageSrc = authModel ? image1Src : image2Src;
 
+    const toggleMode = () => {
+        setIsRegistering(!isRegistering); // Toggle between login and registration
+    };
+
+    const imageSrc = isRegistering ? image1Src : image2Src; // Use image2Src for registration
+
+    const strengthLv = (()=> {
+        let strength = 1;
+        // 长度检查
+        if (password.length < 8) return strength;
+        // 大写字母检查
+        if (/[A-Z]/.test(password)) strength += 1;
+        // 小写字母检查
+        if (/[a-z]/.test(password)) strength += 1;
+        // 数字检查
+        if (/[0-9]/.test(password)) strength += 1;
+        // 特殊字符检查
+        if (/[\W_]/.test(password)) strength += 1;
+
+        return strength;
+    })();
     return (
         <Container>
             <Flex gap="3" direction="column">
                 <Box>
                     <AspectRatio ratio={1}>
-                        <Image src={imageSrc} alt="naruto" objectFit="cover" />
+                        <Image src={imageSrc} alt="auth-image" objectFit="cover" />
                     </AspectRatio>
                 </Box>
-                <Box mt="40px">
-                    <Field.Root gap="20px">
-                        <FieldLabel> 用户名 / 邮箱 </FieldLabel>
-                        <StyledInput placeholder="hhyufan | hhyufan@gmail.com" />
-                        <FieldLabel> 密码 </FieldLabel>
-                        <StyledPasswordInput placeholder="••••••" />
+                <Box mt={isRegistering ? "0px" : "20px"} >
+                    <Field.Root gap="10px">
+                        {isRegistering ? (
+                            <>
+                                <FieldLabel> 用户名 </FieldLabel>
+                                <StyledInput
+                                    placeholder="用户名"
+                                    value={username}
+                                    onChange={(e) => setUsername(e.target.value)}
+                                />
+                                <FieldLabel> 邮箱 </FieldLabel>
+                                <StyledInput
+                                    placeholder="hhyufan@gmail.com"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                />
+                                <FieldLabel> 密码 </FieldLabel>
+                                <StyledPasswordInput
+                                    placeholder="••••••"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                />
+                                {password.length > 0 && <PasswordStrengthMeter minW="100%" value={strengthLv} />}
+                            </>
+                        ) : (
+                            <>
+                                <FieldLabel> 用户名 / 邮箱 </FieldLabel>
+                                <StyledInput
+                                    placeholder="hhyufan | hhyufan@gmail.com"
+                                    value={username}
+                                    onChange={(e) => setUsername(e.target.value)}
+                                />
+                                <FieldLabel> 密码 </FieldLabel>
+                                <StyledPasswordInput
+                                    placeholder="••••••"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                />
+                            </>
+                        )}
                     </Field.Root>
                 </Box>
-                <Box mt="40px">
-                    <LinkTip>
-                        没有账号？去注册
+                <Box mt={isRegistering ? "0px" : "40px"}>
+                    <LinkTip onClick={toggleMode}>
+                        {isRegistering ? "已有账号？去登录" : "没有账号？去注册"}
                     </LinkTip>
                     <Button
                         onClick={handleClick}
@@ -82,10 +141,10 @@ const AuthFrom = ({onLogin}) => {
                         size="sm" // 设置按钮大小
                         rounded="lg"
                         color="#fff"
-                        backgroundColor="#ffb600" // 设置背景颜色
+                        backgroundColor={isRegistering ? "#cd90f0" : "#ffb600"}// 设置背景颜色
                         width="100%" // 按钮宽度填满父容器
                     >
-                        登录
+                        {isRegistering ? "注册" : "登录"}
                     </Button>
                 </Box>
             </Flex>
@@ -93,4 +152,4 @@ const AuthFrom = ({onLogin}) => {
     );
 }
 
-export default AuthFrom
+export default AuthFrom;
