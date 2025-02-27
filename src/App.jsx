@@ -3,6 +3,7 @@ import Demo from "@/components/Demo.jsx";
 import { useState, useEffect } from "react";
 import AuthForm from "@/pages/AuthForm.jsx";
 import { Box, Center, useBreakpointValue } from "@chakra-ui/react";
+import ChatLayout from "@/pages/ChatLayout.jsx";
 
 // 设备检测函数
 const isDesktopDevice = () => {
@@ -98,7 +99,7 @@ function App() {
                             path="/"
                             element={
                                 isLoggedIn ? (
-                                    <Demo />
+                                    <ChatLayout />
                                 ) : (
                                     <AuthForm onLogin={handleLogin} />
                                 )
