@@ -71,7 +71,7 @@ function App() {
 
     return (
         <Center
-            minH="100vh"
+            minH={windowHeight}
             p={0}
             bg={isDebugMode ? "gray.50" : "white"}
             _before={isDebugMode ? {
