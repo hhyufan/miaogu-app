@@ -70,3 +70,12 @@ const processToken = async (res) => {
     await store.dispatch(setToken(res.token));
     await store.dispatch(setRefreshToken(res.refreshToken));
 };
+
+// 获取聊天信息
+export const getChatMsg = async (Type, requestMessage = {}) => {
+    return axiosInstance.post(`/${Type}/messages`, requestMessage, {
+        headers: {
+            'Content-Type': 'application/json', // 设置请求头
+        }
+    }).then(res => res.data);
+};

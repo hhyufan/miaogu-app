@@ -3,68 +3,30 @@ import styled from "styled-components";
 import {useEffect, useRef, useState} from "react";
 import {InputGroup} from "@/components/ui/input-group.jsx";
 import {IoIosSend} from "react-icons/io";
-
+import MarkdownRenderer from "@/components/MarkdownRenderer.jsx";
+import {getChatMsg} from "@/api/api.js";
+import chat4Avatar from "@/assets/head_portrait2.png";
 const Container = styled.div`
     background-color: #F1F5FB;
     user-select: none;
     position: relative; /* 设置容器为相对定位 */
     height: 100vh; /* 设置容器高度为视口高度 */
 `;
-const MockMessage = [
-    {
-        "time": "2023-01-01 18:00:00",
-        "content": "我们聊了什么!",
-        "role": "user",
-        "username": "newUser"
-    },
-    {
-        "time": "2023-01-01 18:00:00",
-        "content": "我们刚刚开始聊天，还没有具体的内容。你可以告诉我你想聊什么，或者有什么问题需要帮助吗？",
-        "role": "assistant",
-        "username": "newUser"
-    },
-    {
-        "time": "2023-01-01 18:00:00",
-        "content": "写一份关于锅包肉的导游介绍!",
-        "role": "user",
-        "username": "newUser"
-    },
-    {
-        "time": "2023-01-01 18:00:00",
-        "content": "标题:   锅包肉:   中国传统美食的魅力与故事导语:   锅包肉，一道源自中国东北的经典美食，以其独特的口感和丰富的文化内涵吸引了无数食客。今天，就让我们一起走进这道美食的世界，探寻它的历史渊源、制作方法以及背后的故事。\n" +
-            "一、历史渊源:锅包肉的起源锅包肉起源于中国东北的黑龙江省，这里的饮食文化深受满族、蒙古族等少数民族的影响。据传，锅包肉最早可以追溯到清朝末年，由一位名叫郑兴文的满族厨师发明。当时，郑兴文为了迎合一位来自俄罗斯的宾客口味，特意将烹制方法进行改良，创造性地使用了“锅爆”的方式，从而诞生了这道具有国际风味的酸甜口感，传承至今，成为中华饮食文化瑰宝。\n",
-        "role": "assistant",
-        "username": "newUser"
-    },
-    {
-        "time": "2023-01-01 18:00:00",
-        "content": "1+1!",
-        "role": "user",
-        "username": "newUser"
-    },
-    {
-        "time": "2023-01-01 18:00:00",
-        "content": "1 + 1 等于 2。这是一个非常基础的数学问题，如果你有其他数学问题或任何其他问题，随时告诉我！",
-        "role": "assistant",
-        "username": "newUser"
-    },
-    {
-        "time": "2023-01-01 18:00:00",
-        "content": "1+1!",
-        "role": "user",
-        "username": "newUser"
-    },
-    {
-        "time": "2023-01-01 18:00:00",
-        "content": "1 + 1 等于 2。这是一个非常基础的数学问题，如果你有其他数学问题或任何其他问题，随时告诉我！",
-        "role": "assistant",
-        "username": "newUser"
-    }]
+
+
+
 const ChatLayout = () => {
-    const [messages, setMessages] = useState(MockMessage)
+    const [messages, setMessages] = useState([])
     const [inputValue, setInputValue] = useState("");
     const messagesEndRef = useRef(null);
-
+    useEffect(() => {
+        // 模拟 API 请求
+        getChatMsg("1003", {}).then(
+            (res) => {
+                setMessages(res.data)
+            }
+        );
+    }, []);
     // 时间格式化函数
     const formatTime = (date) => {
         const year = date.getFullYear();
@@ -89,12 +51,12 @@ const ChatLayout = () => {
     useEffect(() => {
         scrollToBottom();
     }, [messages]);
-
     const handleSend = () => {
         if (!inputValue.trim()) return;
 
-        // 添加用户消息
+        // 添加用户消息（带唯一 id）
         const newMessage = {
+            id: Date.now(),
             time: formatTime(new Date()),
             content: inputValue,
             role: "user",
@@ -104,16 +66,43 @@ const ChatLayout = () => {
         setMessages(prev => [...prev, newMessage]);
         setInputValue("");
 
-        // 这里可以添加AI回复的模拟逻辑
-        // setTimeout(() => {
-        //     const aiResponse = {
-        //         time: formatTime(new Date()),
-        //         content: "这是AI的回复",
-        //         role: "assistant",
-        //         username: "AI"
-        //     };
-        //     setMessages(prev => [...prev, aiResponse]);
-        // }, 1000);
+        // 添加 AI 的初始消息（带唯一 id）
+        const aiTempId = Date.now() + 1;
+        const aiResponse = {
+            id: aiTempId,
+            time: formatTime(new Date()),
+            content: "", // 初始为空内容
+            role: "assistant",
+            username: "AI"
+        };
+        setMessages(prev => [...prev, aiResponse]);
+
+        // 模拟 AI 回复内容（替换为实际内容）
+        const responseText = `你好，这是一段代码案例：
+  \`\`\`vue
+  function hello() {
+    console.log('Hello Prism!');
+  }
+  \`\`\``;
+        let charIndex = 0;
+
+        // 使用 interval 逐字添加
+        const typingInterval = setInterval(() => {
+            if (charIndex < responseText.length) {
+                setMessages(prev => prev.map(msg => {
+                    if (msg.id === aiTempId) {
+                        return {
+                            ...msg,
+                            content: responseText.slice(0, charIndex + 1)
+                        };
+                    }
+                    return msg;
+                }));
+                charIndex++;
+            } else {
+                clearInterval(typingInterval);
+            }
+        }, 50); // 调整每个字符的显示速度
     };
 
     const handleKeyPress = (e) => {
@@ -141,10 +130,10 @@ const ChatLayout = () => {
                     pb="20px" // 添加底部 padding 防止消息被输入框遮挡
                 >
                     {messages.map((msg, index) => (
-                        <Flex justify={msg.role === "assistant" ? "flex-start" : "flex-end"} key={index}
+                        <Flex justify={msg.role === "assistant" || msg.role === "AI" ? "flex-start" : "flex-end"} key={index}
                               marginBottom="5"> {/* 设置每行之间的间距 */}
-                            {msg.role === "assistant" ? (<Image
-                                src="https://ide.code.fun/api/image?token=67c00782797f850011fa27a7&name=baeaa950f8457461f43a9c9ce6b28abb.png"
+                            {msg.role === "assistant" || msg.role === "AI" ? (<Image
+                                src= {chat4Avatar}
                                 w="31px"
                                 h="31px"
                             />) : ""}
@@ -153,28 +142,24 @@ const ChatLayout = () => {
 
                             >
                                 <Box
-                                    maxWidth="70vw"
+                                    maxWidth="85vw"
                                     px={4}
                                     py={3}
-                                    bg={msg.role === "assistant" ?
-                                        "#fff" :
+                                    bg={msg.role === "assistant" || msg.role === "AI" ?
+                                        "#eaa6a6" :
                                         "#d786f7"
                                     }
-                                    borderRadius={msg.role === "assistant" ?
+                                    borderRadius={msg.role === "assistant" || msg.role === "AI" ?
                                         "0 12px 12px 12px " :
                                         "12px 0 12px 12px "
                                     }
 
                                 >
-                                    <Text fontSize="12px" color={
-                                        msg.role === "assistant" ?
-                                            "black" :
-                                            "white"
-                                    }>
-                                        {msg.content}
-                                    </Text>
+                                    <MarkdownRenderer
+                                        fontSize="12px"
+                                        content={msg.content} />
                                 </Box>
-                                {msg.role === "assistant" ? (<Text mt={1} fontSize="10px" color="gray">
+                                {msg.role === "assistant" || msg.role === "AI" ? (<Text mt={1} fontSize="10px" color="gray">
                                     {msg.time}
                                 </Text>) : ""}
                             </Box>

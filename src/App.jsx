@@ -1,5 +1,4 @@
 import { Routes, Route, BrowserRouter } from 'react-router-dom';
-import Demo from "@/components/Demo.jsx";
 import { useState, useEffect } from "react";
 import AuthForm from "@/pages/AuthForm.jsx";
 import { Box, Center, useBreakpointValue } from "@chakra-ui/react";
