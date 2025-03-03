@@ -10,7 +10,75 @@ import { toast } from '@/plugins/toast.js';
 Prism.plugins.autoloader.languages_path =
     'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/';
 Prism.languages.vue = Prism.languages.html; // 提前注册扩展语言
+const baseStyle = {
+    color: '#333333',
+    fontFamily: "'Poppins', sans-serif"
+};
 
+const textStyle = {
+    ...baseStyle,
+    fontSize: '1rem',
+    lineHeight: 1.6
+};
+
+const headingStyle = {
+    ...baseStyle,
+    margin: '1.2em 0 0.6em',
+    lineHeight: 1.2
+};
+
+const quoteStyle = {
+    ...baseStyle,
+    borderLeft: '4px solid #ddd',
+    paddingLeft: '1rem',
+    margin: '1rem 0',
+    fontStyle: 'italic'
+};
+
+const listStyle = {
+    ...baseStyle,
+    paddingLeft: '1.5rem',
+    margin: '1rem 0'
+};
+
+const listItemStyle = {
+    ...baseStyle,
+    margin: '0.4rem 0'
+};
+
+const linkStyle = {
+    ...baseStyle,
+    color: '#0066cc',
+    textDecoration: 'underline'
+};
+
+const hrStyle = {
+    ...baseStyle,
+    border: 0,
+    borderTop: '1px solid #ddd',
+    margin: '1.5rem 0'
+};
+
+const tableStyle = {
+    ...baseStyle,
+    borderCollapse: 'collapse',
+    margin: '1rem 0'
+};
+
+const tableHeadStyle = {
+    backgroundColor: '#f5f5f5'
+};
+
+const tableCellStyle = {
+    ...baseStyle,
+    border: '1px solid #ddd',
+    padding: '0.5rem'
+};
+
+const tableHeaderStyle = {
+    ...tableCellStyle,
+    fontWeight: 600
+};
 // 语言显示名称映射表
 const LANGUAGE_DISPLAY_MAP = {
     html: 'HTML',
@@ -137,10 +205,33 @@ const MarkdownRenderer = ({ content }) => {
             <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 components={{
+                    p: ({ children }) => <p style={textStyle}>{children}</p>,
+                    h1: ({ children }) => <h1 style={{ ...headingStyle, fontSize: '2rem' }}>{children}</h1>,
+                    h2: ({ children }) => <h2 style={{ ...headingStyle, fontSize: '1.8rem' }}>{children}</h2>,
+                    h3: ({ children }) => <h3 style={{ ...headingStyle, fontSize: '1.6rem' }}>{children}</h3>,
+                    h4: ({ children }) => <h4 style={{ ...headingStyle, fontSize: '1.4rem' }}>{children}</h4>,
+                    h5: ({ children }) => <h5 style={{ ...headingStyle, fontSize: '1.2rem' }}>{children}</h5>,
+                    h6: ({ children }) => <h6 style={{ ...headingStyle, fontSize: '1rem' }}>{children}</h6>,
+                    blockquote: ({ children }) => <blockquote style={quoteStyle}>{children}</blockquote>,
+                    ul: ({ children }) => <ul style={listStyle}>{children}</ul>,
+                    ol: ({ children }) => <ol style={listStyle}>{children}</ol>,
+                    li: ({ children }) => <li style={listItemStyle}>{children}</li>,
+                    a: ({ children, href }) => (
+                        <a href={href} style={linkStyle}>
+                            {children}
+                        </a>
+                    ),
+                    em: ({ children }) => <em style={textStyle}>{children}</em>,
+                    strong: ({ children }) => <strong style={{ ...textStyle, fontWeight: 600 }}>{children}</strong>,
+                    hr: () => <hr style={hrStyle} />,
+                    table: ({ children }) => <table style={tableStyle}>{children}</table>,
+                    thead: ({ children }) => <thead style={tableHeadStyle}>{children}</thead>,
+                    td: ({ children }) => <td style={tableCellStyle}>{children}</td>,
+                    th: ({ children }) => <th style={tableHeaderStyle}>{children}</th>,
                     code({ className, children, ...props }) {
                         const language = className?.replace('language-', '') || '';
                         return language ? (
-                            <pre className={`language-${language}`} style={{ position: 'relative', fontSize: '0.8rem'}}>
+                            <pre className={`language-${language}`} style={{ position: 'relative', fontSize: '0.8rem', fontFamily:"'JetBrains Mono', monospace"}}>
                 <code className={className} {...props}>
                   {children}
                 </code>
