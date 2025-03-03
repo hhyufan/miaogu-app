@@ -147,7 +147,7 @@ const ChatLayout = () => {
                                     px={4}
                                     py={3}
                                     bg={msg.role === "assistant" || msg.role === "AI" ?
-                                        "#dc7070" :
+                                        "#ffffff" :
                                         "#d786f7"
                                     }
                                     borderRadius={msg.role === "assistant" || msg.role === "AI" ?
