@@ -137,17 +137,23 @@ const MarkdownRenderer = ({ content }) => {
             <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 components={{
-                    code({  inline, className, children, ...props }) {
+                    code({ className, children, ...props }) {
                         const language = className?.replace('language-', '') || '';
-
-                        return !inline ? (
-                            <pre className={`language-${language}`} style={{ position: 'relative' }}>
+                        return language ? (
+                            <pre className={`language-${language}`} style={{ position: 'relative', fontSize: '0.8rem'}}>
                 <code className={className} {...props}>
                   {children}
                 </code>
               </pre>
                         ) : (
-                            <code className="custom-inline-code" {...props}>
+                            <code style={{
+                                backgroundColor: 'rgba(246,224,224,0.4)', // 背景色
+                                padding: '2px 4px', // 内边距
+                                borderRadius: '4px', // 圆角
+                                fontSize: '1em', // 字体大小
+                                fontFamily: 'monospace', // 等宽字体
+                                color: '#ffffff', // 文字颜色
+                            }}{...props}>
                                 {children}
                             </code>
                         );

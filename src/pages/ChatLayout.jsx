@@ -4,8 +4,9 @@ import {useEffect, useRef, useState} from "react";
 import {InputGroup} from "@/components/ui/input-group.jsx";
 import {IoIosSend} from "react-icons/io";
 import MarkdownRenderer from "@/components/MarkdownRenderer.jsx";
-import {getChatMsg} from "@/api/api.js";
+import {getAllChatMsg, getChatMsg, sendChatMessage} from "@/api/api.js";
 import chat4Avatar from "@/assets/head_portrait2.png";
+import {toast} from "@/plugins/toast.js";
 const Container = styled.div`
     background-color: #F1F5FB;
     user-select: none;
@@ -26,6 +27,7 @@ const ChatLayout = () => {
                 setMessages(res.data)
             }
         );
+
     }, []);
     // 时间格式化函数
     const formatTime = (date) => {
@@ -51,16 +53,13 @@ const ChatLayout = () => {
     useEffect(() => {
         scrollToBottom();
     }, [messages]);
-    const handleSend = () => {
+    const handleSend = async () => {
         if (!inputValue.trim()) return;
-
         // 添加用户消息（带唯一 id）
         const newMessage = {
-            id: Date.now(),
             time: formatTime(new Date()),
             content: inputValue,
-            role: "user",
-            username: "newUser"
+            role: "user"
         };
 
         setMessages(prev => [...prev, newMessage]);
@@ -77,32 +76,34 @@ const ChatLayout = () => {
         };
         setMessages(prev => [...prev, aiResponse]);
 
-        // 模拟 AI 回复内容（替换为实际内容）
-        const responseText = `你好，这是一段代码案例：
-  \`\`\`vue
-  function hello() {
-    console.log('Hello Prism!');
-  }
-  \`\`\``;
         let charIndex = 0;
+        await sendChatMessage(newMessage, "1003")
+            .then(response => {
+                if (response.code === 200) {
+                    const responseText = response.data;
+                    const typingInterval = setInterval(() => {
+                        if (charIndex < responseText.length) {
+                            setMessages(prev => prev.map(msg => {
+                                if (msg.id === aiTempId) {
+                                    return {
+                                        ...msg,
+                                        content: responseText.slice(0, charIndex + 1)
+                                    };
+                                }
+                                return msg;
+                            }));
+                            charIndex++;
+                        } else {
+                            clearInterval(typingInterval);
+                        }
+                    }, 50); // 调整每个字符的显示速度
+                } else {
+                    toast.error("发送消息失败！", { error: response['msg'] });
+                }
 
-        // 使用 interval 逐字添加
-        const typingInterval = setInterval(() => {
-            if (charIndex < responseText.length) {
-                setMessages(prev => prev.map(msg => {
-                    if (msg.id === aiTempId) {
-                        return {
-                            ...msg,
-                            content: responseText.slice(0, charIndex + 1)
-                        };
-                    }
-                    return msg;
-                }));
-                charIndex++;
-            } else {
-                clearInterval(typingInterval);
-            }
-        }, 50); // 调整每个字符的显示速度
+
+            })
+
     };
 
     const handleKeyPress = (e) => {
@@ -146,7 +147,7 @@ const ChatLayout = () => {
                                     px={4}
                                     py={3}
                                     bg={msg.role === "assistant" || msg.role === "AI" ?
-                                        "#eaa6a6" :
+                                        "#dc7070" :
                                         "#d786f7"
                                     }
                                     borderRadius={msg.role === "assistant" || msg.role === "AI" ?

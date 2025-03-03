@@ -79,3 +79,14 @@ export const getChatMsg = async (Type, requestMessage = {}) => {
         }
     }).then(res => res.data);
 };
+// 获取聊天信息
+export const getAllChatMsg = async (Type, requestMessage = {}) => {
+    return axiosInstance.post(`/${Type}/message`, requestMessage, {
+        headers: {
+            'Content-Type': 'application/json', // 设置请求头
+        }
+    }).then(res => res.data);
+};
+export const sendChatMessage = async (chatMessage, Type) => {
+    return axiosInstance.post(`/${Type}/send`, chatMessage).then(res => res.data);
+};
