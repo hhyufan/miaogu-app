@@ -73,8 +73,27 @@ const MarkdownRenderer = ({ content }) => {
             // 创建标签
             const tag = document.createElement('button');
             tag.className = 'lang-tag';
+            Object.assign(tag.style, {
+                position: 'absolute',
+                top: '8px',
+                right: '12px',
+                color: 'var(--color-text)',
+                fontSize: '0.8em',
+                border: 'none',
+                background: 'rgba(255, 255, 255, 0.8)',
+                padding: '2px 8px',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                zIndex: 1
+            });
+
+            // 设置显示名称
             tag.textContent = displayLang;
+
+            // 添加点击事件
             tag.addEventListener('click', () => copyToClipboard(code.textContent));
+
+            // 添加悬停效果
             tag.addEventListener('mouseover', () => {
                 tag.style.backgroundColor = '#f8f7f7'; // hover 时的背景色
             });
@@ -92,18 +111,16 @@ const MarkdownRenderer = ({ content }) => {
 
     // 高亮核心逻辑
     const highlightCode = () => {
-        if (containerRef.current) {
-            Prism.highlightAllUnder(containerRef.current);
-            addLanguageLabels();
-        }
+        Prism.highlightAllUnder(containerRef.current);
+        addLanguageLabels();
     };
 
     // 复制到剪贴板
     const copyToClipboard = (text) => {
         navigator.clipboard
             .writeText(text)
-            .then(() => {
-                toast.success('内容已复制', { debounce: 3000, closable: true });
+            .then(async () => {
+                await toast.success('内容已复制', {debounce: 3000, closable: true});
             })
             .catch((err) => {
                 console.error('Failed to copy text: ', err);
@@ -113,7 +130,7 @@ const MarkdownRenderer = ({ content }) => {
     useEffect(() => {
         const debounceTimer = setTimeout(highlightCode, 50); // 延迟确保 DOM 更新
         return () => clearTimeout(debounceTimer);
-    }, [content]);
+    });
 
     return (
         <div ref={containerRef}>
