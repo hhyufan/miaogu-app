@@ -152,7 +152,7 @@ const MarkdownRenderer = ({ content }) => {
                                 borderRadius: '4px', // 圆角
                                 fontSize: '1em', // 字体大小
                                 fontFamily: 'monospace', // 等宽字体
-                                color: '#ffffff', // 文字颜色
+                                color: 'rgb(55,55,57)', // 文字颜色
                             }}{...props}>
                                 {children}
                             </code>
