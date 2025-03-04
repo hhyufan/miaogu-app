@@ -12,7 +12,6 @@ const Container = styled.div`
     user-select: none;
     position: relative; /* 设置容器为相对定位 */
     height: 100vh; /* 设置容器高度为视口高度 */
-    width: 100vw;
 `;
 
 
@@ -121,6 +120,7 @@ const ChatLayout = () => {
                     overflowY="auto"
                     flex="1"       // 填充剩余空间
                     maxH="calc(100vh - 90px)" // 设置最大高度（根据实际情况调整）
+                    maxW="100vw"
                     css={{
                         '&::-webkit-scrollbar': { display: 'none' },
                         '&': {

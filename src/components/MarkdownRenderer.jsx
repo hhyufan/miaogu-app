@@ -142,7 +142,7 @@ const MarkdownRenderer = ({ content }) => {
             const tag = document.createElement('button');
             tag.className = 'lang-tag';
             Object.assign(tag.style, {
-                position: 'sticky',
+                position: 'absolute',
                 top: '8px',
                 right: '12px',
                 color: 'var(--color-text)',
@@ -231,11 +231,11 @@ const MarkdownRenderer = ({ content }) => {
                     code({ className, children, ...props }) {
                         const language = className?.replace('language-', '') || '';
                         return language ? (
-                            <pre className={`language-${language}`} style={{ position: 'relative', fontSize: '0.8rem', fontFamily:"'JetBrains Mono', monospace"}}>
-                <code className={className} {...props}>
-                  {children}
-                </code>
-              </pre>
+                            <pre className={`language-${language}`} style={{ position: 'relative', overflow: 'auto', fontSize: '0.8rem', fontFamily:"'JetBrains Mono', monospace"}}>
+                                <code className={className} {...props}>
+                                    {children}
+                                </code>
+                            </pre>
                         ) : (
                             <code style={{
                                 backgroundColor: 'rgba(246,224,224,0.4)', // 背景色
