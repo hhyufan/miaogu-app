@@ -4,7 +4,7 @@ import {useEffect, useRef, useState} from "react";
 import {InputGroup} from "@/components/ui/input-group.jsx";
 import {IoIosSend} from "react-icons/io";
 import MarkdownRenderer from "@/components/MarkdownRenderer.jsx";
-import {getAllChatMsg, getChatMsg, sendChatMessage} from "@/api/api.js";
+import {getChatMsg, sendChatMessage} from "@/api/api.js";
 import chat4Avatar from "@/assets/head_portrait2.png";
 import {toast} from "@/plugins/toast.js";
 const Container = styled.div`
@@ -12,6 +12,7 @@ const Container = styled.div`
     user-select: none;
     position: relative; /* 设置容器为相对定位 */
     height: 100vh; /* 设置容器高度为视口高度 */
+    width: 100vw;
 `;
 
 
@@ -106,9 +107,9 @@ const ChatLayout = () => {
 
     };
 
-    const handleKeyPress = (e) => {
+    const handleKeyPress = async (e) => {
         if (e.key === 'Enter') {
-            handleSend();
+            await handleSend();
         }
     };
 

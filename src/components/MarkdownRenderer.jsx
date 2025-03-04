@@ -142,7 +142,7 @@ const MarkdownRenderer = ({ content }) => {
             const tag = document.createElement('button');
             tag.className = 'lang-tag';
             Object.assign(tag.style, {
-                position: 'absolute',
+                position: 'sticky',
                 top: '8px',
                 right: '12px',
                 color: 'var(--color-text)',
