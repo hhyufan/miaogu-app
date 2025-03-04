@@ -113,14 +113,14 @@ const ChatLayout = () => {
     };
 
     return (
-        <Container>
+        <Container maxW="100vw">
             <Flex padding="0 10px 0 10px" gap="3" direction="column" minH="0"> {/* 关键 minH 设置 */}
                 <Box
                     ref={scrollContainerRef}
                     overflowY="auto"
+                    overflowX="hidden"
                     flex="1"       // 填充剩余空间
                     maxH="calc(100vh - 90px)" // 设置最大高度（根据实际情况调整）
-                    maxW="100vw"
                     css={{
                         '&::-webkit-scrollbar': { display: 'none' },
                         '&': {

@@ -145,10 +145,10 @@ const MarkdownRenderer = ({ content }) => {
                 position: 'absolute',
                 top: '8px',
                 right: '12px',
-                color: 'var(--color-text)',
+                color: '#333333',
                 fontSize: '0.8em',
                 border: 'none',
-                background: 'rgba(255, 255, 255, 0.8)',
+                background: 'rgba(255,255,255,0.7)',
                 padding: '2px 8px',
                 borderRadius: '4px',
                 cursor: 'pointer',
@@ -170,10 +170,10 @@ const MarkdownRenderer = ({ content }) => {
             });
 
             // 确保 pre 元素有定位上下文
-            pre.style.position = 'relative';
+            pre.parentElement.style.position = 'relative';
 
             // 将标签添加到 pre 元素
-            pre.appendChild(tag);
+            pre.parentElement.appendChild(tag);
         });
     };
 
