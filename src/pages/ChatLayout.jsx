@@ -10,8 +10,8 @@ import {toast} from "@/plugins/toast.js";
 const Container = styled.div`
     background-color: #F1F5FB;
     user-select: none;
-    position: relative; /* 设置容器为相对定位 */
-    height: 100vh; /* 设置容器高度为视口高度 */
+    padding: 0 10px 0 10px;
+    height: 100%; /* 设置容器高度为视口高度 */
 `;
 
 
@@ -113,14 +113,14 @@ const ChatLayout = () => {
     };
 
     return (
-        <Container maxW="100vw">
-            <Flex padding="0 10px 0 10px" gap="3" direction="column" minH="0"> {/* 关键 minH 设置 */}
+        <Container>
                 <Box
+                    maxH="calc(100% - 50px)"
                     ref={scrollContainerRef}
                     overflowY="auto"
                     overflowX="hidden"
-                    flex="1"       // 填充剩余空间
-                    maxH="calc(100vh - 90px)" // 设置最大高度（根据实际情况调整）
+                    boxSizing="border-box"
+                    mb="50px"
                     css={{
                         '&::-webkit-scrollbar': { display: 'none' },
                         '&': {
@@ -129,7 +129,6 @@ const ChatLayout = () => {
                         },
                     }}
                     pt="40px"
-                    pb="20px" // 添加底部 padding 防止消息被输入框遮挡
                 >
                     {messages.map((msg, index) => (
                         <Flex justify={msg.role === "assistant" || msg.role === "AI" ? "flex-start" : "flex-end"} key={index}
@@ -169,39 +168,39 @@ const ChatLayout = () => {
                     ))}
                     <div ref={messagesEndRef}/>
                 </Box>
-            </Flex>
-            <Flex
-                h="50px"
-                bg="#fff"
-                alignItems="center"  // 垂直方向居中
-                bottom="0px"     // 直接修改定位距离
-                position="sticky"   // 添加定位
-                zIndex="1"          // 防止被消息列表覆盖
-            >
-                <InputGroup
-                    margin="0 auto"
-                    h="45px"
-                    width="96%"        // 确保宽度填充
-                    endElement={
-                        <IoIosSend color="#d499f9" size="26px" onClick={handleSend}/>
-                    }
+                <Flex
+                    h="50px"
+                    left="0"
+                    right="0"
+                    bg="#fff"
+                    alignItems="center"  // 垂直方向居中
+                    bottom="0px"     // 直接修改定位距离
+                    position="fixed"   // 添加定位
                 >
-                    <Input
-                        value={inputValue}
-                        onChange={(e) => setInputValue(e.target.value)}
-                        onKeyPress={handleKeyPress}
-                        border="none"
-                        bg="#D0A7F2"
-                        borderRadius="12px"
-                        placeholder="开始探索未知的问题吧 "
-                        _placeholder={{
-                            color: "#ab7af5",
-                            fontSize: "13px"
-                        }}
-                    />
+                    <InputGroup
+                        margin="0 auto"
+                        h="45px"
+                        width="96%"        // 确保宽度填充
+                        endElement={
+                            <IoIosSend color="#d499f9" size="26px" onClick={handleSend}/>
+                        }
+                    >
+                        <Input
+                            value={inputValue}
+                            onChange={(e) => setInputValue(e.target.value)}
+                            onKeyPress={handleKeyPress}
+                            border="none"
+                            bg="#D0A7F2"
+                            borderRadius="12px"
+                            placeholder="开始探索未知的问题吧 "
+                            _placeholder={{
+                                color: "#ab7af5",
+                                fontSize: "13px"
+                            }}
+                        />
 
-                </InputGroup>
-            </Flex>
+                    </InputGroup>
+                </Flex>
         </Container>
     )
 }
