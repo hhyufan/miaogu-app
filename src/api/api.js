@@ -1,6 +1,7 @@
 import axiosInstance from '@/axios/axiosInstance';
 import store, {setExpiresIn, setRefreshToken, setToken} from "@/store/store.js";
 import {encryptPassword} from "@/util/rsaEncryptor.js";
+import {formatISOTime} from "@/util/dateUtil.js";
 
 export const login = async (username, password) => {
     const state = store.getState();
@@ -77,7 +78,15 @@ export const getChatMsg = async (Type, requestMessage = {}) => {
         headers: {
             'Content-Type': 'application/json', // 设置请求头
         }
-    }).then(res => res.data);
+    }).then(res => {
+        res.data.data.forEach((item, i) => {
+            console.log("time:" + res.data.data[i].time)
+            console.log("formatTime:" + formatISOTime(new Date(item.time)))
+            res.data.data[i].time = formatISOTime(new Date(item.time))
+        })
+        console.log("data:" + JSON.stringify(res.data))
+        return res.data
+    });
 };
 // 获取聊天信息
 export const clearChatMsg = async (params) => {
