@@ -19,7 +19,7 @@ import DeepSeekAvatar from "@/assets/head_portrait3.jpg"
 import {toast} from "@/plugins/toast.js";
 
 import {LuAlignRight, LuChevronLeft, LuArchiveRestore, LuTrash2, LuBotMessageSquare, LuZap} from "react-icons/lu";
-import {Cell, Dialog, Popover} from "react-vant";
+import {Cell, Dialog, Loading, Popover} from "react-vant";
 import {formatLocaleTime, formatTime} from "@/util/dateUtil.js";
 const Container = styled.div`
     background-color: #F1F5FB;
@@ -70,7 +70,9 @@ const ChatLayout = () => {
     const [visible, setVisible] = useState(false);
     const [inputValue, setInputValue] = useState("");
     const messagesEndRef = useRef(null);
+    const [loading, setLoading] = useState(false);
     const refreshMsgs = () => {
+        setLoading(false)
         getChatMsg(currentModel.id, {}).then(
             (res) => {
                 setMessages(res.data)
@@ -182,6 +184,7 @@ const ChatLayout = () => {
         scrollToBottom();
     }, [messages]);
     const handleSend = async () => {
+        setLoading(true)
         if (!inputValue.trim()) {
             await toast.warning("消息不能为空！", {closable: true, duration: 2000, debounce: 2500})
             return;
@@ -211,6 +214,7 @@ const ChatLayout = () => {
         await sendChatMessage(newMessage, currentModel.id)
             .then(response => {
                 if (response.code === 200) {
+                    setLoading(false)
                     const responseText = response.data;
                     const typingInterval = setInterval(() => {
                         if (charIndex < responseText.length) {
@@ -346,9 +350,21 @@ const ChatLayout = () => {
                                         "12px 0 12px 12px "
                                     }
                                 >
-                                    <MarkdownRenderer
-                                        fontSize="12px"
-                                        content={msg.content} />
+                                    {
+                                        (loading && (+index + 1 === messages.length)) ? (
+                                            <Flex
+                                                justify="center"
+                                                align="center"
+                                            >
+                                                <Loading type="ball" />
+                                            </Flex>
+                                        ) : (
+                                            <MarkdownRenderer
+                                                fontSize="12px"
+                                                content={msg.content}
+                                            />
+                                        )
+                                    }
                                 </Box>
                                 {msg.role === "assistant" || msg.role === "AI" ? (<Text mt={1} fontSize="10px" color="gray">
                                     {currentModel.detail}&nbsp;&nbsp;&nbsp;{formatLocaleTime(msg.time)}

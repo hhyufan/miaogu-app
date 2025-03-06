@@ -80,11 +80,8 @@ export const getChatMsg = async (Type, requestMessage = {}) => {
         }
     }).then(res => {
         res.data.data.forEach((item, i) => {
-            console.log("time:" + res.data.data[i].time)
-            console.log("formatTime:" + formatISOTime(new Date(item.time)))
             res.data.data[i].time = formatISOTime(new Date(item.time))
         })
-        console.log("data:" + JSON.stringify(res.data))
         return res.data
     });
 };
