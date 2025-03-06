@@ -214,6 +214,7 @@ const ChatLayout = () => {
         await sendChatMessage(newMessage, currentModel.id)
             .then(response => {
                 if (response.code === 200) {
+                    scrollToBottom();
                     setLoading(false)
                     const responseText = response.data;
                     const typingInterval = setInterval(() => {
