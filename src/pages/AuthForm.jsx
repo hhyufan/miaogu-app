@@ -79,7 +79,7 @@ const AuthFrom = ({ onLogin }) => {
         }${
             missingFields[missingFields.length - 1]
         }`;
-        console.log(missingFields)
+        // console.log(missingFields)
         if (missingFields.length !== 0) {
             await toast.warning(message + "不能为空！", { debounce: 2500, duration: 2000, closable: true});
             return;

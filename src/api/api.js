@@ -4,7 +4,7 @@ import {encryptPassword} from "@/util/rsaEncryptor.js";
 
 export const login = async (username, password) => {
     const state = store.getState();
-    console.log(state.user.username)
+    // console.log(state.user.username)
     return axiosInstance.post(`/user/login`, {
         username,
         password:
