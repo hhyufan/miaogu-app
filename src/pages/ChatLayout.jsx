@@ -177,7 +177,6 @@ const ChatLayout = () => {
     };
     const formatLocaleTime = (isoString) => {
         const date = new Date(isoString);
-        date.setHours(date.getHours() - 8);
         // 格式化为 yyyy/mm/dd hh:mm:ss
         return formatTime(date).replaceAll("-", "/");
     }
@@ -365,7 +364,7 @@ const ChatLayout = () => {
                                         content={msg.content} />
                                 </Box>
                                 {msg.role === "assistant" || msg.role === "AI" ? (<Text mt={1} fontSize="10px" color="gray">
-                                    {currentModel.detail}&nbsp;&nbsp;{formatLocaleTime(msg.time)}
+                                    {currentModel.detail}&nbsp;&nbsp;&nbsp;{formatLocaleTime(msg.time)}
                                 </Text>) : ""}
                             </Box>
                         </Flex>
