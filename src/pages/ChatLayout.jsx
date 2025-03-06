@@ -209,7 +209,7 @@ const ChatLayout = () => {
             username: "AI"
         };
         setMessages(prev => [...prev, aiResponse]);
-
+        scrollToBottom();
         let charIndex = 0;
         await sendChatMessage(newMessage, currentModel.id)
             .then(response => {
