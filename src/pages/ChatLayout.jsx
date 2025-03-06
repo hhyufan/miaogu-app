@@ -4,20 +4,22 @@ import {
     Text,
     Image,
     Input,
-    IconButton
+    Slider,
+    IconButton, useSlider
 } from "@chakra-ui/react";
 import styled from "styled-components";
 import {useEffect, useRef, useState} from "react";
 import {InputGroup} from "@/components/ui/input-group.jsx";
 import {IoIosSend} from "react-icons/io";
 import MarkdownRenderer from "@/components/MarkdownRenderer.jsx";
-import {getChatMsg, sendChatMessage} from "@/api/api.js";
+import {clearChatMsg, getChatMsg, logout, rollbackChatMsg, sendChatMessage} from "@/api/api.js";
 import chat3Avatar from "@/assets/head_portrait1.png";
 import chat4Avatar from "@/assets/head_portrait2.png";
 import DeepSeekAvatar from "@/assets/head_portrait3.jpg"
 import {toast} from "@/plugins/toast.js";
-import {LuAlignRight, LuChevronLeft, LuArchiveRestore, LuTrash2, LuBotMessageSquare} from "react-icons/lu";
-import {Cell, Popover} from "react-vant";
+
+import {LuAlignRight, LuChevronLeft, LuArchiveRestore, LuTrash2, LuBotMessageSquare, LuZap} from "react-icons/lu";
+import {Cell, Dialog, Popover} from "react-vant";
 const Container = styled.div`
     background-color: #F1F5FB;
     user-select: none;
@@ -57,26 +59,101 @@ const currentModel = {
     detail: 'gpt-3.5-turbo'
 }
 // "#9c81ed"
+
 const ChatLayout = () => {
     const [messages, setMessages] = useState([])
+    const slider = useSlider({
+        defaultValue: [0],
+        thumbAlignment: "center",
+    })
     const [visible, setVisible] = useState(false);
     const [inputValue, setInputValue] = useState("");
     const messagesEndRef = useRef(null);
+    const refreshMsgs = () => {
+        getChatMsg(currentModel.id, {}).then(
+            (res) => {
+                setMessages(res.data)
+            }
+        );
+    }
     const select = (option) => {
         if (currentModel.id !== option.id) {
             currentModel.id = option.id;
             currentModel.avatar = option.avatar
             currentModel.detail = option.detail
-            getChatMsg(currentModel.id, {}).then(
-                (res) => {
-                    setMessages(res.data)
-                }
-            );
+            refreshMsgs()
             const selectedColor = option.color === "#333333" ? '#9c81ed' : '#333333';
             iconActions.forEach((action) => {
                 action.color = action.text === option.text ? selectedColor : '#333333';
             });
         }
+    };
+
+// Method to rollback chat messages
+    const rollbackChat = async () => {
+        await Dialog.confirm({
+            title: '回滚聊天记录',
+            message: '确定要回滚到上次保存的聊天记录吗？此操作不可逆。',
+        })
+            .then(async () => {
+                try {
+                    const response = await rollbackChatMsg();
+                    console.log("???" +JSON.stringify(response))
+                    if (response.code === 200) {
+                        refreshMsgs()
+                        await toast.success("成功恢复聊天记录！", { closable: true });
+                    } else if (response.code === 404){
+                        await toast.warning("无历史版本！", { closable: true });
+                    } else {
+                        await toast.error("回滚消息失败！");
+                    }
+                } catch (error) {
+                    await toast.error("回滚过程中发生错误");
+                    console.error("Rollback error:", error);
+                }
+            })
+            .catch(async () => {
+                await toast.warning("操作已取消", { closable: true });
+            })
+    };
+
+// Method to clear chat messages
+    const clearChat = async () => {
+        await Dialog.confirm({
+                title: '删除聊天记录',
+                message: '您确定要删除所有聊天记录吗？此操作不可逆。',
+        }).then(async () => {
+            clearChatMsg()
+                .then(async response => {
+                    if (response.code === 204) {
+                        refreshMsgs()
+                        await toast.success("聊天记录已清空", {closable: true});
+                    } else {
+                        await toast.error("清空聊天记录失败！");
+                    }
+                })
+                .catch(async error => {
+                    await toast.error("清空聊天记录时发生错误！", error);
+                });
+        }).catch(async () => await toast.warning("操作已取消", {closable: true}))
+    };
+
+    const exit = async () => {
+        await Dialog.confirm({
+            title: '退出登录',
+            message: '您确定要退出当前账号？',
+        }).then(async () => {
+            logout()
+                .then(async response => {
+                    if (response.code === 200) {
+                        await toast.success("退出账号成功");
+                        setTimeout(() => (window.location.href = "/"), 1500);
+                    }
+                })
+                .catch(async error => {
+                    await toast.error("退出账号时发生错误！", error);
+                });
+        }).catch(async () => await toast.warning("操作已取消", {closable: true}))
     };
 
     useEffect(() => {
@@ -101,17 +178,8 @@ const ChatLayout = () => {
     const formatLocaleTime = (isoString) => {
         const date = new Date(isoString);
         date.setHours(date.getHours() - 8);
-        // 获取年份、月份和日期
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0'); // 月份从0开始
-        const day = String(date.getDate()).padStart(2, '0');
-
-        // 获取小时和分钟
-        const hours = String(date.getHours()).padStart(2, '0');
-        const minutes = String(date.getMinutes()).padStart(2, '0');
-
-        // 格式化为 yyyy/mm/dd hh:mm
-        return `${year}/${month}/${day} ${hours}:${minutes}`;
+        // 格式化为 yyyy/mm/dd hh:mm:ss
+        return formatTime(date).replaceAll("-", "/");
     }
     const scrollContainerRef = useRef(null); // 新增滚动容器 ref
 
@@ -173,7 +241,7 @@ const ChatLayout = () => {
                         } else {
                             clearInterval(typingInterval);
                         }
-                    }, 50); // 调整每个字符的显示速度
+                    }, +slider.value); // 调整每个字符的显示速度
                 } else {
                     toast.error("发送消息失败！", { error: response['msg'] });
                 }
@@ -186,6 +254,7 @@ const ChatLayout = () => {
             await handleSend();
         }
     };
+
     return (
         <Container>
             <Flex
@@ -202,13 +271,13 @@ const ChatLayout = () => {
                 zIndex="2"
             >
                 <Box>
-                    <IconButton onClick={() => toast.warning("功能开发中~")} fontSize="24px" color="black" backgroundColor="#F8F9FA">
+                    <IconButton onClick={exit} fontSize="24px" color="black" backgroundColor="#F8F9FA">
                         <LuChevronLeft/>
                     </IconButton>
                 </Box>
                 <Popover
                     style={{
-                        zIndex: 10000
+                        zIndex: 10
                     }}
                     onClosed={() => setVisible(false)}
                     placement="bottom-end"
@@ -229,8 +298,21 @@ const ChatLayout = () => {
                             reference={<Cell onClick={() => setVisible(!visible)} value='当前模型' icon={<LuBotMessageSquare/>}/>}
                         >
                         </Popover>
-                        <Cell value='清理记录' onClick={() => toast.warning("功能开发中~")} icon={<LuTrash2 />}/>
-                        <Cell value='还原记录' onClick={() => toast.warning("功能开发中~")} icon={<LuArchiveRestore/>}/>
+                        <Cell value='清理记录' onClick={clearChat} icon={<LuTrash2 />}/>
+                        <Cell value='还原记录' onClick={rollbackChat} icon={<LuArchiveRestore/>}/>
+                        <Cell icon={<LuZap/>} value={
+                            <Slider.RootProvider colorPalette="purple" value={slider} width="80px" pl="10px" pr="10px">
+                                <Slider.Control >
+                                    <Slider.Track>
+                                        <Slider.Range />
+                                    </Slider.Track>
+                                    <Slider.Thumb index={0} style={{fontSize: '6px',  borderRadius: "30%", backgroundColor:"#b7a6ea"}}>
+                                        <Slider.HiddenInput />
+                                        {slider.value}ms
+                                    </Slider.Thumb>
+                                </Slider.Control>
+                            </Slider.RootProvider>
+                        }/>
                     </Cell.Group>
                 </Popover>
             </Flex>

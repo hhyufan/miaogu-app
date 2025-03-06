@@ -1,6 +1,6 @@
 import store, {setBaseURL, setPublicKey} from "@/store/store.js";
 
-const localDebug = false;
+const localDebug = true;
 const REMOTE_URL = localDebug ? "http://localhost:8088" : 'https://yuki.cmyam.net/miaogu_api';
 
 const REMOTE_API_URL = `${REMOTE_URL}/edge-config/api/config`;

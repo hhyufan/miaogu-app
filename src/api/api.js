@@ -80,13 +80,26 @@ export const getChatMsg = async (Type, requestMessage = {}) => {
     }).then(res => res.data);
 };
 // 获取聊天信息
-export const getAllChatMsg = async (Type, requestMessage = {}) => {
-    return axiosInstance.post(`/${Type}/message`, requestMessage, {
-        headers: {
-            'Content-Type': 'application/json', // 设置请求头
-        }
-    }).then(res => res.data);
+export const clearChatMsg = async (params) => {
+    return axiosInstance.delete(`/chat/clear`, params).then(res => res.data);
 };
+
+export const rollbackChatMsg = async (params) => {
+    return axiosInstance.post(`/chat/revert`, params).then(res => res.data);
+};
+
+export const logout = async () => {
+    return axiosInstance.post(`/user/logout`, null, {
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    }).then(async res => {
+        await store.dispatch(setToken(null));
+        await store.dispatch(setRefreshToken(null));
+        return res.data
+    })
+}
+
 export const sendChatMessage = async (chatMessage, Type) => {
     return axiosInstance.post(`/${Type}/send`, chatMessage).then(res => res.data);
 };
