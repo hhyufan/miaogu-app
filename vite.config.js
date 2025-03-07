@@ -11,6 +11,7 @@ export default defineConfig({
   },
   plugins: [react(), tsconfigPaths()],
   server: {
+    port: 5174, // 设置端口为 5174
     host: '0.0.0.0', // 允许局域网访问
     allowedHosts: [
       'boa-awake-finch.ngrok-free.app', // 添加你的 ngrok 域名
