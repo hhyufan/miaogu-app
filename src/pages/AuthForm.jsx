@@ -101,6 +101,10 @@ const AuthFrom = ({ onLogin }) => {
                     await toast.error(response['msg']);
                 }
             } catch (error) {
+                if (error.code === 'ERR_NETWORK') {
+                    await toast.error('网络连接错误', {error})
+                    return;
+                }
                 if (error.status === 429 && error?.response?.data) {
                     await toast.error(error.response.data.message, {closable: true, duration: 2000, debounce: 2500});
                 } else {
