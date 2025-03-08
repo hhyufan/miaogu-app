@@ -21,6 +21,8 @@ import {toast} from "@/plugins/toast.js";
 import {LuAlignRight, LuChevronLeft, LuArchiveRestore, LuTrash2, LuBotMessageSquare, LuZap} from "react-icons/lu";
 import {Cell, Dialog, Loading, Popover} from "react-vant";
 import {formatLocaleTime, formatTime} from "@/util/dateUtil.js";
+import {persistor, resetState} from "@/store/store.js";
+import {useDispatch} from "react-redux";
 const Container = styled.div`
     background-color: #F1F5FB;
     user-select: none;
@@ -71,6 +73,7 @@ const ChatLayout = () => {
     const [inputValue, setInputValue] = useState("");
     const messagesEndRef = useRef(null);
     const [loading, setLoading] = useState(false);
+    const dispatch = useDispatch(); // 获取 dispatch 函数
     const refreshMsgs = () => {
         setLoading(false)
         getChatMsg(currentModel.id, {}).then(
@@ -150,7 +153,13 @@ const ChatLayout = () => {
                 .then(async response => {
                     if (response.code === 200) {
                         await toast.success("退出账号成功");
-                        setTimeout(() => (window.location.href = "/"), 1500);
+                        // 分发重置Action，清空内存中的状态
+                        setTimeout(() => {
+                            dispatch(resetState());
+                            // 清除持久化存储，确保下次加载时初始状态生效
+                            persistor.purge();
+                            window.location.href = "/"
+                        }, 1500);
                     }
                 })
                 .catch(async error => {

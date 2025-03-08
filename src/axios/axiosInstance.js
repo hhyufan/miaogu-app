@@ -1,7 +1,7 @@
 // axiosInstance.js
 import axios from 'axios';
 import { getBaseUrl } from '@/api';
-import store from "@/store/store.js";
+import store, {persistor, resetState} from "@/store/store.js";
 import {refreshToken, updateToken} from '@/api/api.js';
 import {toast} from "@/plugins/toast.js";
 
@@ -51,7 +51,12 @@ axiosInstance.interceptors.response.use(
             // 处理未授权的情况，例如重定向到登录页面
             await toast.error("令牌过期或未授权", error.response.data.message);
             setTimeout(
-                () => window.location.href = "/",
+                () => {
+                    store.dispatch(resetState());
+                    // 清除持久化存储，确保下次加载时初始状态生效
+                    persistor.purge();
+                    window.location.href = "/"
+                },
                 1500
             )
         }

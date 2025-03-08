@@ -3,6 +3,9 @@ import { useState, useEffect } from "react";
 import AuthForm from "@/pages/AuthForm.jsx";
 import { Box, Center, useBreakpointValue } from "@chakra-ui/react";
 import ChatLayout from "@/pages/ChatLayout.jsx";
+import {useDispatch, useSelector} from "react-redux";
+import {setIsLoggedIn} from "@/store/store.js";
+import {initEdgeConfig} from "@/api/index.js";
 
 // 设备检测函数
 const isDesktopDevice = () => {
@@ -24,12 +27,14 @@ function App() {
         const handleResize = () => {
             setWindowHeight(window.innerHeight);
         };
+        initEdgeConfig().catch(
 
+        )
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
-
+    const isLoggedIn = useSelector((state) => state.user.isLoggedIn); // 从 Redux store 获取登录状态
+    const dispatch = useDispatch(); // 获取 dispatch 函数
     // 调试模式判断（开发环境 + 桌面设备）
     const isDebugMode = isDesktopDevice();
 
@@ -52,7 +57,7 @@ function App() {
     });
 
     const handleLogin = () => {
-        setIsLoggedIn(true);
+        dispatch(setIsLoggedIn(true))
     };
 
     // 调试模式热键监听

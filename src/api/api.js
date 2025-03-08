@@ -6,6 +6,7 @@ import {formatISOTime} from "@/util/dateUtil.js";
 export const login = async (username, password) => {
     const state = store.getState();
     // console.log(state.user.username)
+    console.log("publicKeyC: " + state.edgeConfig.publicKey)
     return axiosInstance.post(`/user/login`, {
         username,
         password:

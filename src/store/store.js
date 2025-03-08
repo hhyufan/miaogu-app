@@ -1,8 +1,14 @@
-import { configureStore, createSlice } from '@reduxjs/toolkit';
+import {combineReducers, configureStore, createAction, createSlice} from '@reduxjs/toolkit';
+import { persistStore, persistReducer } from 'redux-persist';
+import storage from 'redux-persist/lib/storage';
+
+// 创建重置状态的Action
+export const resetState = createAction('RESET_STATE');
 
 const userSlice = createSlice({
     name: 'user',
     initialState: {
+        isLoggedIn: false,
         username: '',
         token: '',
         refreshToken: '',
@@ -10,6 +16,9 @@ const userSlice = createSlice({
         userInfo: {}
     },
     reducers: {
+        setIsLoggedIn: (state, action) => {
+            state.isLoggedIn = action.payload;
+        },
         setReduxUsername: (state, action) => {
             state.username = action.payload;
         },
@@ -39,14 +48,47 @@ const edgeConfigSlice = createSlice({
             state.baseURL = action.payload;
         },
         setPublicKey: (state, action) => {
-            // console.log("Updating publicKey:", action.payload);
             state.publicKey = action.payload;
         }
     }
-})
+});
+
+// 合并Reducer
+const appReducer = combineReducers({
+    user: userSlice.reducer,
+    edgeConfig: edgeConfigSlice.reducer
+});
+
+// 根Reducer，处理重置逻辑
+const rootReducer = (state, action) => {
+    if (action.type === resetState.type) {
+        return appReducer(undefined, action); // 重置所有状态为初始值
+    }
+    return appReducer(state, action);
+};
+
+// Redux-persist配置
+const persistConfig = {
+    key: 'root',
+    storage,
+    whitelist: ['user', 'edgeConfig'],
+};
+
+const persistedReducer = persistReducer(persistConfig, rootReducer);
+
+const store = configureStore({
+    reducer: persistedReducer,
+    middleware: (getDefaultMiddleware) =>
+        getDefaultMiddleware({
+            serializableCheck: {
+                ignoredActions: ['persist/PERSIST'],
+            },
+        }),
+});
 
 export const {
-    setReduxUsername ,
+    setIsLoggedIn,
+    setReduxUsername,
     setToken,
     setRefreshToken,
     setExpiresIn,
@@ -57,11 +99,6 @@ export const {
     setPublicKey
 } = edgeConfigSlice.actions;
 
-const store = configureStore({
-    reducer: {
-        user: userSlice.reducer,
-        edgeConfig: edgeConfigSlice.reducer
-    }
-});
+export const persistor = persistStore(store);
 
 export default store;

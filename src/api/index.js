@@ -25,6 +25,7 @@ export async function getBaseUrl() {
 
 export async function getPublicKey() {
     const state = store.getState();
+    console.log("publicKeyA:"  + state.edgeConfig.publicKey)
     if (state.edgeConfig.publicKey) return state.edgeConfig.publicKey; // 缓存结果
     store.dispatch(setPublicKey(PUBLIC_KEY));
     return PUBLIC_KEY; // 返回更新后的 publicKey
@@ -33,5 +34,7 @@ export async function getPublicKey() {
 // 在应用启动时初始化 baseUrl
 export async function initEdgeConfig() {
     await getPublicKey();
+    const state = store.getState();
+    console.log("publicKeyB:"  + state.edgeConfig.publicKey)
     await getBaseUrl();
 }
