@@ -5,12 +5,11 @@ import {formatISOTime} from "@/util/dateUtil.js";
 
 export const login = async (username, password) => {
     const state = store.getState();
-    // console.log(state.user.username)
-    console.log("publicKeyC: " + state.edgeConfig.publicKey)
+    // console.log(state['user']['username'])
     return axiosInstance.post(`/user/login`, {
         username,
         password:
-            encryptPassword(password, state.edgeConfig.publicKey)}, {
+            encryptPassword(password, state['edgeConfig']['publicKey'])}, {
         headers: {
             'Content-Type': 'application/json' // 设置为 JSON
         }
@@ -28,7 +27,7 @@ export const register =async (username, password, email) => {
     const state = store.getState();
     return axiosInstance.post(`/user/register`, {
         username,
-        password: encryptPassword(password, state.edgeConfig.publicKey), email},  {
+        password: encryptPassword(password, state['edgeConfig']['publicKey']), email},  {
         headers: {
             'Content-Type': 'application/json' // 设置为 JSON
         }
@@ -49,8 +48,8 @@ export const refreshToken = async () => {
     const state = store.getState();
     try {
         const response = await axiosInstance.post('/user/refresh', {
-            username: state.user.username,
-            refreshToken: state.user.refreshToken,
+            username: state['user']['username'],
+            refreshToken: state['user']['refreshToken'],
         });
         await store.dispatch(setToken(response.data.data.token));
         await store.dispatch(setExpiresIn(Date.now() + +response.data.data.expiresIn));

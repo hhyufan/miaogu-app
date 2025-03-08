@@ -17,8 +17,8 @@ axiosInstance.interceptors.request.use(async (config) => {
     }
     const ignoredUrls = ['/user/login', '/user/register', '/user/refresh'].map(v => config.baseURL + v);
 
-    const token = state.user.token;
-    const expiresIn = state.user.expiresIn;
+    const token = state['user']['token'];
+    const expiresIn = state['user']['expiresIn'];
 
     if (token) {
         config.headers['Authorization'] = `Bearer ${token}`;

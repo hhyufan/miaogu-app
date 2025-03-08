@@ -14,7 +14,7 @@ const PUBLIC_KEY = requireEnv('VITE_PUBLIC_KEY');
 
 export async function getBaseUrl() {
     const state = store.getState();
-    if (state.edgeConfig.baseURL) return state.edgeConfig.baseURL; // 缓存结果
+    if (state['edgeConfig']['baseURL']) return state['edgeConfig']['baseURL']; // 缓存结果
 
     const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
     const baseUrl = isLocalhost ? LOCAL_HOST : REMOTE_URL
@@ -25,8 +25,7 @@ export async function getBaseUrl() {
 
 export async function getPublicKey() {
     const state = store.getState();
-    console.log("publicKeyA:"  + state.edgeConfig.publicKey)
-    if (state.edgeConfig.publicKey) return state.edgeConfig.publicKey; // 缓存结果
+    if (state['edgeConfig']['publicKey']) return state['edgeConfig']['publicKey']; // 缓存结果
     store.dispatch(setPublicKey(PUBLIC_KEY));
     return PUBLIC_KEY; // 返回更新后的 publicKey
 }
@@ -34,7 +33,5 @@ export async function getPublicKey() {
 // 在应用启动时初始化 baseUrl
 export async function initEdgeConfig() {
     await getPublicKey();
-    const state = store.getState();
-    console.log("publicKeyB:"  + state.edgeConfig.publicKey)
     await getBaseUrl();
 }

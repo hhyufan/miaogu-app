@@ -5,7 +5,7 @@ const Container = styled.div`
     user-select: none;
 `;
 const Demo = () => {
-    const username = useSelector(state => state.user.username);
+    const username = useSelector(state => state['user']['username']);
     return (
         <Container>
             <Center flexDir="column" gap="8" minH="dvh">

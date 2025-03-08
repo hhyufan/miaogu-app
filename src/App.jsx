@@ -33,7 +33,7 @@ function App() {
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);
-    const isLoggedIn = useSelector((state) => state.user.isLoggedIn); // 从 Redux store 获取登录状态
+    const isLoggedIn = useSelector((state) => state['user']['isLoggedIn']); // 从 Redux store 获取登录状态
     const dispatch = useDispatch(); // 获取 dispatch 函数
     // 调试模式判断（开发环境 + 桌面设备）
     const isDebugMode = isDesktopDevice();
