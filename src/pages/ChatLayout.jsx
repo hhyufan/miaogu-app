@@ -21,8 +21,8 @@ import {toast} from "@/plugins/toast.js";
 import {LuAlignRight, LuChevronLeft, LuArchiveRestore, LuTrash2, LuBotMessageSquare, LuZap} from "react-icons/lu";
 import {Cell, Dialog, Loading, Popover} from "react-vant";
 import {formatLocaleTime, formatTime} from "@/util/dateUtil.js";
-import {persistor, resetState} from "@/store/store.js";
-import {useDispatch} from "react-redux";
+import {persistor, resetState, setCurrentModel, setSelectedColor} from "@/store/store.js";
+import {useDispatch, useSelector} from "react-redux";
 const Container = styled.div`
     background-color: #F1F5FB;
     user-select: none;
@@ -44,7 +44,7 @@ const iconActions = [
         detail: 'gpt-4o-mini',
         avatar: chat4Avatar,
         icon: <img width="28" height="28" src="https://img.icons8.com/nolan/64/chatgpt.png"
-                                  alt="chatgpt"/>,
+                                alt="chatgpt"/>,
         color: '#333333'
     },
     {
@@ -56,12 +56,7 @@ const iconActions = [
         color: '#333333'
     },
 ]
-const currentModel = {
-    id: "1002",
-    avatar: chat3Avatar,
-    detail: 'gpt-3.5-turbo'
-}
-// "#9c81ed"
+// "#9c81ed" - 默认选中颜色
 
 const ChatLayout = () => {
     const [messages, setMessages] = useState([])
@@ -74,6 +69,10 @@ const ChatLayout = () => {
     const messagesEndRef = useRef(null);
     const [loading, setLoading] = useState(false);
     const dispatch = useDispatch(); // 获取 dispatch 函数
+    
+    // 从Redux获取当前模型信息
+    const currentModel = useSelector((state) => state['chatModel']);
+    const selectedColor = useSelector((state) => state['chatModel']['selectedColor']);
     const refreshMsgs = () => {
         setLoading(false)
         getChatMsg(currentModel.id, {}).then(
@@ -84,13 +83,20 @@ const ChatLayout = () => {
     }
     const select = (option) => {
         if (currentModel.id !== option.id) {
-            currentModel.id = option.id;
-            currentModel.avatar = option.avatar
-            currentModel.detail = option.detail
+            // 更新Redux中的模型信息
+            dispatch(setCurrentModel({
+                id: option.id,
+                avatar: option.avatar,
+                detail: option.detail
+            }));
+            
             refreshMsgs()
-            const selectedColor = option.color === "#333333" ? '#9c81ed' : '#333333';
+            const newSelectedColor = option.color === "#333333" ? '#9c81ed' : '#333333';
+            dispatch(setSelectedColor(newSelectedColor));
+            
+            // 更新本地UI状态
             iconActions.forEach((action) => {
-                action.color = action.text === option.text ? selectedColor : '#333333';
+                action.color = action.text === option.text ? newSelectedColor : '#333333';
             });
         }
     };
@@ -169,14 +175,20 @@ const ChatLayout = () => {
     };
 
     useEffect(() => {
-        // 模拟 API 请求
+        // 初始化iconActions的颜色状态
+        const currentModelId = currentModel.id;
+        iconActions.forEach((action) => {
+            action.color = action.id === currentModelId ? selectedColor : '#333333';
+        });
+        
+        // 获取聊天消息
         getChatMsg(currentModel.id, {}).then(
             (res) => {
                 setMessages(res.data)
             }
         );
 
-    }, []);
+    }, [currentModel.id, selectedColor]);
     // 时间格式化函数
     const scrollContainerRef = useRef(null); // 新增滚动容器 ref
 
